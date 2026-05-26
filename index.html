@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LLM Eval Audio Showcase</title>
+    <!-- Modern Typography: Plus Jakarta Sans for headers, Inter for UI/Body, Fira Code for JSON -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!-- Premium Top Navigation -->
+    <nav class="nav-bar">
+      <div class="nav-container">
+        <span class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg>
+          Context-TTS Eval
+        </span>
+
+      </div>
+    </nav>
+
+    <main class="page">
+      <header class="hero">
+        <p class="eyebrow">Audio Eval Showcase</p>
+        <h1>LLM Eval Audio Showcase</h1>
+        <p class="subtitle">
+          Evaluating prosodic alignment and speech naturalness under context-aware communicative intents, emotional turns, and information structures.
+        </p>
+        <div id="summary" class="summary"></div>
+      </header>
+
+      <section class="controls">
+        <div class="controls-card">
+          <div class="control-group">
+            <span class="control-label">Evaluation Source</span>
+            <div id="section-tabs" class="tab-row tab-row--sections" aria-label="Eval source tabs"></div>
+          </div>
+          <p id="section-description" class="section-description"></p>
+          
+          <div class="control-divider"></div>
+
+          <div class="control-grid-layout">
+            <div class="control-group">
+              <span class="control-label">Dataset Category</span>
+              <div id="dataset-tabs" class="tab-row" aria-label="Dataset tabs"></div>
+            </div>
+            <div id="flag-filters-wrapper" class="control-group">
+              <span class="control-label">Presentation Filter</span>
+              <div id="flag-filters" class="filter-row" aria-label="Presentation filters"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="examples" class="examples" aria-live="polite"></section>
+    </main>
+
+    <!-- Redesigned comparative card template -->
+    <template id="example-template">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <p class="card-kicker"></p>
+            <h2 class="card-title"></h2>
+          </div>
+          <span class="badge"></span>
+        </div>
+
+        <div class="meta"></div>
+
+        <div class="card-content-grid">
+          <!-- Left Column: Context Timeline -->
+          <section class="block context-block">
+            <div class="block-header">
+              <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <h3>Conversation Context</h3>
+            </div>
+            <div class="context-turns"></div>
+          </section>
+
+          <!-- Right Column: Comparative Players & Evaluation Details -->
+          <div class="eval-column">
+            <!-- Audio Comparison -->
+            <section class="block audio-block">
+              <div class="block-header">
+                <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                <h3>Audio Evaluation</h3>
+              </div>
+              
+              <div class="audio-comparison-grid">
+                <!-- Reference Target Player -->
+                <div class="player-wrapper target-player-wrapper">
+                  <div class="player-label-row">
+                    <span class="player-label">Reference Target</span>
+                    <span class="player-sublabel">Ground Truth</span>
+                  </div>
+                  <p class="target-text"></p>
+                  
+                  <div class="custom-audio-player-container">
+                    <div class="custom-audio-player" data-player-id="">
+                      <button class="play-btn" aria-label="Play reference audio">
+                        <!-- Play SVG -->
+                        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <!-- Pause SVG -->
+                        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                      </button>
+                      <div class="player-timeline">
+                        <div class="progress-bar-background">
+                          <div class="progress-bar-filled"></div>
+                        </div>
+                        <input type="range" class="seek-slider" min="0" max="100" value="0" step="0.1" aria-label="Seek track">
+                      </div>
+                      <div class="time-display">
+                        <span class="current-time">0:00</span><span class="time-divider">/</span><span class="duration">0:00</span>
+                      </div>
+                    </div>
+                    <audio class="target-audio" preload="none"></audio>
+                  </div>
+                </div>
+
+                <!-- Generated Player -->
+                <div class="player-wrapper generated-player-wrapper generated-block">
+                  <div class="player-label-row">
+                    <span class="player-label">Generated Audio</span>
+                    <span class="player-sublabel">Model Output</span>
+                  </div>
+                  
+                  <div class="custom-audio-player-container">
+                    <div class="custom-audio-player" data-player-id="">
+                      <button class="play-btn" aria-label="Play generated audio">
+                        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                      </button>
+                      <div class="player-timeline">
+                        <div class="progress-bar-background">
+                          <div class="progress-bar-filled"></div>
+                        </div>
+                        <input type="range" class="seek-slider" min="0" max="100" value="0" step="0.1" aria-label="Seek track">
+                      </div>
+                      <div class="time-display">
+                        <span class="current-time">0:00</span><span class="time-divider">/</span><span class="duration">0:00</span>
+                      </div>
+                    </div>
+                    <audio class="generated-audio" preload="none"></audio>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Judge Response Analysis -->
+            <section class="block analysis-block">
+              <div class="block-header">
+                <svg class="block-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <h3 class="judge-heading">Judge Response</h3>
+              </div>
+              <div class="judge-summary"></div>
+              
+              <!-- Collapsible JSON response -->
+              <details class="judge-json-details">
+                <summary class="judge-json-summary">
+                  <span class="summary-title-row">
+                    <svg class="summary-code-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                    <span>View Raw Evaluation Response</span>
+                  </span>
+                  <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </summary>
+                <div class="judge-json-wrapper">
+                  <pre class="judge-json"></pre>
+                </div>
+              </details>
+            </section>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="./data/showcase.bundle.js"></script>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
+
